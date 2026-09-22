@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CN &amp; OS Lab Manual — R22 Revision 4</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f5f6fa;
+      --sidebar-bg:#1e2030;
+      --sidebar-w: 260px;
+      --accent:    #4f8ef7;
+      --accent2:   #e07b39;
+      --text:      #2d2d3a;
+      --muted:     #6b7080;
+      --border:    #dde1ec;
+      --code-bg:   #1a1d2e;
+      --code-text: #cdd6f4;
+      --radius:    8px;
+      --shadow:    0 2px 8px rgba(0,0,0,.08);
+      --font:      'Inter', system-ui, sans-serif;
+      --mono:      'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--sidebar-bg);
+      color: #cdd6f4;
+      position: fixed;
+      top: 0; left: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      padding: 22px 20px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .sidebar-logo h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+    }
+    .sidebar-logo span {
+      font-size: 11px;
+      color: #888aaa;
+      display: block;
+      margin-top: 3px;
+    }
+
+    .sidebar-section {
+      padding: 18px 20px 6px;
+    }
+    .sidebar-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .sidebar-section-title.os { color: var(--accent2); }
+
+    .sidebar-section ul { list-style: none; }
+    .sidebar-section ul li a {
+      display: block;
+      padding: 6px 10px;
+      border-radius: 5px;
+      font-size: 13px;
+      color: #a6aac8;
+      text-decoration: none;
+      transition: background .15s, color .15s;
+    }
+    .sidebar-section ul li a:hover,
+    .sidebar-section ul li a.active {
+      background: rgba(79,142,247,.15);
+      color: #fff;
+    }
+    .sidebar-section ul li a.active { font-weight: 600; }
+
+    /* ── Main Content ── */
+    #main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 40px 48px;
+      max-width: 960px;
+    }
+
+    /* ── Page Header ── */
+    .page-header {
+      text-align: center;
+      margin-bottom: 48px;
+      padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .page-header .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .page-header p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* ── Section Headers ── */
+    .part-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 40px 0 24px;
+      padding: 14px 20px;
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .part-header.cn {
+      background: rgba(79,142,247,.1);
+      border-left: 4px solid var(--accent);
+      color: var(--accent);
+    }
+    .part-header.os {
+      background: rgba(224,123,57,.1);
+      border-left: 4px solid var(--accent2);
+      color: var(--accent2);
+    }
+    .part-header .part-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      opacity: .7;
+    }
+
+    /* ── Program Card ── */
+    .program-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .program-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: #f9fafb;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+    .program-card-header:hover { background: #f1f3f8; }
+
+    .program-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .prog-id {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .prog-id.cn { background: rgba(79,142,247,.15); color: var(--accent); }
+    .prog-id.os { background: rgba(224,123,57,.15); color: var(--accent2); }
+
+    .prog-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .toggle-icon {
+      font-size: 18px;
+      color: var(--muted);
+      transition: transform .2s;
+      font-weight: 300;
+    }
+    .program-card.open .toggle-icon { transform: rotate(180deg); }
+
+    /* ── Code Container ── */
+    .code-container { display: none; }
+    .program-card.open .code-container { display: block; }
+
+    .code-label {
+      padding: 8px 20px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--code-bg);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.65;
+      padding: 16px 20px 20px;
+      overflow-x: auto;
+      tab-size: 4;
+    }
+
+    /* ── Copy Button ── */
+    .copy-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 8px 14px;
+      background: var(--code-bg);
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .copy-btn {
+      background: rgba(255,255,255,.08);
+      color: #a6aac8;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,.18); color: #fff; }
+    .copy-btn.copied { background: rgba(80,200,120,.2); color: #50c878; }
+
+    /* ── Keyword Highlight (via CSS) ── */
+    .kw  { color: #89b4fa; }  /* keywords */
+    .ty  { color: #cba6f7; }  /* types */
+    .str { color: #a6e3a1; }  /* strings */
+    .num { color: #fab387; }  /* numbers */
+    .cm  { color: #585b70; font-style: italic; }  /* comments */
+    .fn  { color: #89dceb; }  /* function names */
+
+    /* ── Scrollbar ── */
+    #sidebar::-webkit-scrollbar { width: 4px; }
+    #sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+    pre::-webkit-scrollbar { height: 6px; }
+    pre::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      #sidebar { width: 100%; min-height: auto; position: relative; }
+      #main { margin-left: 0; padding: 24px 20px; }
+      body { flex-direction: column; }
+    }
+  </style>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <h1>CN &amp; OS Lab Manual</h1>
+    <span>R22 — Revision 4</span>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Part 1 · Computer Networks</div>
+    <ul>
+      <li><a href="#cn1a">CN-1A · Character Count</a></li>
+      <li><a href="#cn1b">CN-1B · Character Stuffing</a></li>
+      <li><a href="#cn1c">CN-1C · Bit Stuffing</a></li>
+      <li><a href="#cn2">CN-2 · CRC</a></li>
+      <li><a href="#cn3">CN-3 · Hamming Code</a></li>
+      <li><a href="#cn4">CN-4 · Dijkstra's Algorithm</a></li>
+    </ul>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title os">Part 2 · Operating Systems</div>
+    <ul>
+      <li><a href="#os1a">OS-1A · FCFS</a></li>
+      <li><a href="#os1b-np">OS-1B · Non-Preemptive SJF</a></li>
+      <li><a href="#os1b-p">OS-1B · Preemptive SJF (SRTF)</a></li>
+      <li><a href="#os1c-np">OS-1C · Non-Preemptive Priority</a></li>
+      <li><a href="#os1c-p">OS-1C · Preemptive Priority</a></li>
+      <li><a href="#os1d">OS-1D · Round Robin</a></li>
+      <li><a href="#os2">OS-2 · Banker's Algorithm</a></li>
+      <li><a href="#os3">OS-3 · Paging</a></li>
+      <li><a href="#os4a">OS-4A · FIFO Page Replacement</a></li>
+      <li><a href="#os4b">OS-4B · LRU Page Replacement</a></li>
+      <li><a href="#os4c">OS-4C · Optimal Page Replacement</a></li>
+      <li><a href="#os5a">OS-5A · SCAN</a></li>
+      <li><a href="#os5b">OS-5B · C-SCAN</a></li>
+      <li><a href="#os5c">OS-5C · SSTF</a></li>
+      <li><a href="#os6a">OS-6A · Booth's Multiplication</a></li>
+      <li><a href="#os6b">OS-6B · Restoring Division</a></li>
+      <li><a href="#os6c">OS-6C · Non-Restoring Division</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main id="main">
+
+  <header class="page-header">
+    <div class="badge">Lab Manual</div>
+    <h1>Computer Networks &amp; Operating Systems</h1>
+    <p>Source: CN OS Lab Manual &mdash; R22 Revision 4 &nbsp;|&nbsp; Java (CN) &amp; C (OS)</p>
+  </header>
+
+  <!-- ═══════ PART 1 — CN ═══════ -->
+  <div class="part-header cn" id="part1">
+    <span class="part-label">Part 1</span>
+    Computer Networks &nbsp;·&nbsp; Java
+  </div>
+
+  <!-- CN-1A -->
+  <div class="program-card open" id="cn1a">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id cn">CN-1A</span>
+        <span class="prog-name">Character Count — Sender &amp; Receiver</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">Sender · CharacterCountSender.java</div>
+      <pre><code id="code-cn1a-s">public class CharacterCountSender {
+    public static String sendData(String[] data) {
+        StringBuilder frame = new StringBuilder();
+        for (String message : data) {
+            int count = message.length();
+            frame.append(count).append(message);
+        }
+        return frame.toString();
+    }
+
+    public static void main(String[] args) {
+        String[] data = {"Hello", "World", "Test"};
+        String frame = sendData(data);
+        System.out.println("Frame to send: " + frame);
+    }
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-cn1a-s',this)">Copy</button></div>
+      <div class="code-label">Receiver · CharacterCountReceiver.java</div>
+      <pre><code id="code-cn1a-r">public class CharacterCountReceiver {
+    public static void receiveData(String frame) {
+        int i = 0;
+        while (i &lt; frame.length()) {
+            int count = Character.getNumericValue(frame.charAt(i));
+            String message = frame.substring(i + 1, i + 1 + count);
+            System.out.println("Received message: " + message);
+            i = i + count + 1;
+        }
+    }
+
+    public static void main(String[] args) {
+        String frame = "5Hello5World4Test";
+        receiveData(frame);
+    }
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-cn1a-r',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- CN-1B -->
+  <div class="program-card" id="cn1b">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id cn">CN-1B</span>
+        <span class="prog-name">Character Stuffing and Destuffing</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">Sender · CharacterStuffingSender.java</div>
+      <pre><code id="code-cn1b-s">public class CharacterStuffingSender {
+    public static String sendData(String data) {
+        String flag = "FLAG";
+        String esc  = "ESC";
+        StringBuilder frame = new StringBuilder(flag);
+        for (int i = 0; i &lt; data.length(); i++) {
+            String character = String.valueOf(data.charAt(i));
+            if (character.equals(flag) || character.equals(esc)) {
+                frame.append(esc);
+            }
+            frame.append(character);
+        }
+        frame.append(flag);
+        return frame.toString();
+    }
+
+    public static void main(String[] args) {
+        String data = "HelloESCWorldFLAGTest";
+        String frame = sendData(data);
+        System.out.println("Frame to send: " + frame);
+    }
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-cn1b-s',this)">Copy</button></div>
+      <div class="code-label">Receiver · CharacterStuffingReceiver.java</div>
+      <pre><code id="code-cn1b-r">public class CharacterStuffingReceiver {
+    public static void receiveData(String frame) {
+        String flag = "FLAG";
+        String esc  = "ESC";
+        StringBuilder message = new StringBuilder();
+        int i = 0;
+        while (i &lt; frame.length()) {
+            if (frame.substring(i, i + 4).equals(flag)) {
+                if (message.length() &gt; 0) {
+                    System.out.println("Received message: " + message.toString());
+                    message.setLength(0);
+                }
+                i += 4;
+            } else if (frame.substring(i, i + 3).equals(esc)) {
+                message.append(frame.charAt(i + 3));
+                i += 4;
+            } else {
+                message.append(frame.charAt(i));
+                i++;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        String frame = "FLAGESCHelloESCESCWorldESCFLAGTestFLAG";
+        receiveData(frame);
+    }
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-cn1b-r',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- CN-1C -->
+  <div class="program-card" id="cn1c">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id cn">CN-1C</span>
+        <span class="prog-name">Bit Stuffing and Destuffing</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">Sender · BitStuffingSender.java</div>
+      <pre><code id="code-cn1c-s">public class BitStuffingSender {
+    public static String sendData(String data) {
+        String flag = "01111110";
+        StringBuilder frame = new StringBuilder(flag);
+        int consecutiveOnes = 0;
+        for (int i = 0; i &lt; data.length(); i++) {
+            char bit = data.charAt(i);
+            frame.append(bit);
+            if (bit == '1') {
+                consecutiveOnes++;
+                if (consecutiveOnes == 5) {
+                    frame.append('0');
+                    consecutiveOnes = 0;
+                }
+            } else {
+                consecutiveOnes = 0;
+            }
+        }
+        frame.append(flag);
+        return frame.toString();
+    }
+
+    public static void main(String[] args) {
+        String data = "011111011111101111100";
+        String frame = sendData(data);
+        System.out.println("Frame to send: " + frame);
+    }
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-cn1c-s',this)">Copy</button></div>
+      <div class="code-label">Receiver · BitStuffingReceiver.java</div>
+      <pre><code id="code-cn1c-r">public class BitStuffingReceiver {
+    public static void receiveData(String frame) {
+        String flag = "01111110";
+        StringBuilder message = new StringBuilder();
+        int consecutiveOnes = 0;
+        int i = 0;
+        while (i &lt; frame.length()) {
+            if (frame.substring(i, i + 8).equals(flag)) {
+                if (message.length() &gt; 0) {
+                    System.out.println("Received message: " + message.toString());
+                    message.setLength(0);
+                }
+                i += 8;
+            } else {
+                char bit = frame.charAt(i);
+                if (bit == '1') {
+                    consecutiveOnes++;
+                    message.append(bit);
+                    if (consecutiveOnes == 5 &amp;&amp; i + 1 &lt; frame.length()
+                            &amp;&amp; frame.charAt(i + 1) == '0') {
+                        i++; // Skip the stuffed '0' bit
+                        consecutiveOnes = 0;
+                    }
+                } else {
+                    message.append(bit);
+                    consecutiveOnes = 0;
+                }
+                i++;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        String frame = "01111110011111011111001111100101111110";
+        receiveData(frame);
+    }
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-cn1c-r',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- CN-2 -->
+  <div class="program-card" id="cn2">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id cn">CN-2</span>
+        <span class="prog-name">CRC — Cyclic Redundancy Check</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">CRC.java</div>
+      <pre><code id="code-cn2">import java.util.Scanner;
+
+public class CRC {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter data to be transmitted: ");
+        String data = scanner.nextLine();
+
+        System.out.print("Enter the Generating polynomial: ");
+        String divisor = scanner.nextLine();
+        int divisorLength = divisor.length();
+
+        String paddedData = data + "0".repeat(divisorLength - 1);
+        System.out.println("----------------------------------------");
+        System.out.println("Data padded with n-1 zeros : " + paddedData);
+        System.out.println("----------------------------------------");
+
+        String remainder = divide(paddedData, divisor);
+        System.out.println("CRC or Check value is : " + remainder);
+        System.out.println("----------------------------------------");
+
+        String encodedData = data + remainder;
+        System.out.println("Final data to be sent : " + encodedData);
+        System.out.println("----------------------------------------");
+
+        System.out.print("Enter the received data: ");
+        String receivedData = scanner.nextLine();
+        System.out.println("-----------------------------");
+        System.out.println("Data received: " + receivedData);
+
+        String receivedRemainder = divide(receivedData, divisor);
+        if (receivedRemainder.equals("0".repeat(divisorLength - 1))) {
+            System.out.println("No error detected");
+        } else {
+            System.out.println("Error detected in received data");
+        }
+        scanner.close();
+    }
+
+    public static String divide(String data, String divisor) {
+        int divisorLength = divisor.length();
+        String tempData = data.substring(0, divisorLength);
+        for (int i = divisorLength; i &lt; data.length(); i++) {
+            if (tempData.charAt(0) == '1') {
+                tempData = xor(tempData, divisor) + data.charAt(i);
+            } else {
+                tempData = xor(tempData, "0".repeat(divisorLength)) + data.charAt(i);
+            }
+        }
+        if (tempData.charAt(0) == '1') {
+            tempData = xor(tempData, divisor);
+        } else {
+            tempData = xor(tempData, "0".repeat(divisorLength));
+        }
+        return tempData.substring(1);
+    }
+
+    public static String xor(String a, String b) {
+        StringBuilder result = new StringBuilder();
+        int length = b.length();
+        for (int i = 0; i &lt; length; i++) {
+            result.append(a.charAt(i) == b.charAt(i) ? '0' : '1');
+        }
+        return result.toString();
+    }
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-cn2',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- CN-3 -->
+  <div class="program-card" id="cn3">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id cn">CN-3</span>
+        <span class="prog-name">Hamming Code — Generation &amp; Error Correction</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">HammingCodeConversion.java</div>
+      <pre><code id="code-cn3">import java.util.Scanner;
+
+public class HammingCodeConversion {
+
+    static void generateHammingCode(int[] dataBits) {
+        int[] hammingCode = new int[7]; // 4 data bits + 3 parity bits
+        hammingCode[2] = dataBits[0];
+        hammingCode[4] = dataBits[1];
+        hammingCode[5] = dataBits[2];
+        hammingCode[6] = dataBits[3];
+        // Calculate parity bits
+        hammingCode[0] = hammingCode[2] ^ hammingCode[4] ^ hammingCode[6]; // P1
+        hammingCode[1] = hammingCode[2] ^ hammingCode[5] ^ hammingCode[6]; // P2
+        hammingCode[3] = hammingCode[4] ^ hammingCode[5] ^ hammingCode[6]; // P4
+        System.out.print("Generated Hamming Code: ");
+        for (int i = 0; i &lt; 7; i++) System.out.print(hammingCode[i] + " ");
+        System.out.println();
+    }
+
+    static void detectAndCorrectError(int[] hammingCode) {
+        int c1 = hammingCode[0] ^ hammingCode[2] ^ hammingCode[4] ^ hammingCode[6]; // P1
+        int c2 = hammingCode[1] ^ hammingCode[2] ^ hammingCode[5] ^ hammingCode[6]; // P2
+        int c4 = hammingCode[3] ^ hammingCode[4] ^ hammingCode[5] ^ hammingCode[6]; // P4
+        int errorPosition = c1 + (c2 * 2) + (c4 * 4);
+        if (errorPosition == 0) {
+            System.out.println("No error detected.");
+        } else {
+            System.out.println("Error detected at position: " + errorPosition);
+            hammingCode[errorPosition - 1] = hammingCode[errorPosition - 1] == 0 ? 1 : 0;
+            System.out.print("Corrected Hamming Code: ");
+            for (int i = 0; i &lt; 7; i++) System.out.print(hammingCode[i] + " ");
+            System.out.println();
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int[] dataBits    = new int[4];
+        int[] hammingCode = new int[7];
+        System.out.println("Enter 4 data bits:");
+        for (int i = 0; i &lt; 4; i++) dataBits[i] = sc.nextInt();
+        generateHammingCode(dataBits);
+        System.out.println("Enter received Hamming Code (7 bits):");
+        for (int i = 0; i &lt; 7; i++) hammingCode[i] = sc.nextInt();
+        detectAndCorrectError(hammingCode);
+    }
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-cn3',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- CN-4 -->
+  <div class="program-card" id="cn4">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id cn">CN-4</span>
+        <span class="prog-name">Dijkstra's Shortest Path Algorithm</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">Graph.java</div>
+      <pre><code id="code-cn4">import java.util.*;
+
+class Graph {
+    class Node implements Comparable&lt;Node&gt; {
+        int vertex, distance;
+        public Node(int vertex, int distance) {
+            this.vertex   = vertex;
+            this.distance = distance;
+        }
+        @Override
+        public int compareTo(Node other) { return this.distance - other.distance; }
+    }
+
+    private int vertices;
+    private LinkedList&lt;Node&gt;[] adjacencyList;
+
+    public Graph(int vertices) {
+        this.vertices = vertices;
+        adjacencyList = new LinkedList[vertices];
+        for (int i = 0; i &lt; vertices; i++) adjacencyList[i] = new LinkedList&lt;&gt;();
+    }
+
+    public void addEdge(int source, int destination, int weight) {
+        adjacencyList[source].add(new Node(destination, weight));
+        adjacencyList[destination].add(new Node(source, weight));
+    }
+
+    public void dijkstra(int source) {
+        PriorityQueue&lt;Node&gt; pq = new PriorityQueue&lt;&gt;();
+        int[] distances = new int[vertices];
+        Arrays.fill(distances, Integer.MAX_VALUE);
+        distances[source] = 0;
+        pq.add(new Node(source, 0));
+        boolean[] finalized = new boolean[vertices];
+
+        while (!pq.isEmpty()) {
+            Node curr = pq.poll();
+            int u = curr.vertex;
+            if (finalized[u]) continue;
+            finalized[u] = true;
+            for (Node neighbor : adjacencyList[u]) {
+                int v = neighbor.vertex, w = neighbor.distance;
+                if (!finalized[v] &amp;&amp; distances[u] + w &lt; distances[v]) {
+                    distances[v] = distances[u] + w;
+                    pq.add(new Node(v, distances[v]));
+                }
+            }
+        }
+        printShortestPaths(distances, source);
+    }
+
+    public void printShortestPaths(int[] distances, int source) {
+        System.out.println("Shortest paths from vertex " + source + ":");
+        for (int i = 0; i &lt; distances.length; i++)
+            System.out.println("Vertex " + i + " is at distance " + distances[i]);
+    }
+
+    public static void main(String[] args) {
+        int vertices = 6;
+        Graph graph = new Graph(vertices);
+        graph.addEdge(0, 1, 4);
+        graph.addEdge(0, 2, 2);
+        graph.addEdge(1, 2, 1);
+        graph.addEdge(1, 3, 5);
+        graph.addEdge(2, 3, 8);
+        graph.addEdge(2, 4, 10);
+        graph.addEdge(3, 4, 2);
+        graph.addEdge(3, 5, 6);
+        graph.addEdge(4, 5, 3);
+        graph.dijkstra(0);
+    }
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-cn4',this)">Copy</button></div>
+    </div>
+  </div>
+
+
+  <!-- ═══════ PART 2 — OS ═══════ -->
+  <div class="part-header os" id="part2">
+    <span class="part-label">Part 2</span>
+    Operating Systems &nbsp;·&nbsp; C
+  </div>
+
+  <!-- OS-1A FCFS -->
+  <div class="program-card" id="os1a">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-1A</span>
+        <span class="prog-name">FCFS Scheduling</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">fcfs.c</div>
+      <pre><code id="code-os1a">#include &lt;stdio.h&gt;
+
+int main() {
+    int n, i;
+    int bt[20], wt[20], tat[20], p[20];
+    int total_wt = 0, total_tat = 0;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &amp;n);
+
+    for (i = 0; i &lt; n; i++) {
+        printf("Enter burst time for process %d: ", i + 1);
+        scanf("%d", &amp;bt[i]);
+        p[i] = i + 1;
+    }
+
+    wt[0] = 0;
+    for (i = 1; i &lt; n; i++) {
+        wt[i] = wt[i - 1] + bt[i - 1];
+        total_wt += wt[i];
+    }
+
+    for (i = 0; i &lt; n; i++) {
+        tat[i] = bt[i] + wt[i];
+        total_tat += tat[i];
+    }
+
+    printf("\nProcess\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (i = 0; i &lt; n; i++)
+        printf("P%d\t%d\t\t%d\t\t%d\n", p[i], bt[i], wt[i], tat[i]);
+
+    printf("\nAverage Waiting Time    = %.2f", (float)total_wt / n);
+    printf("\nAverage Turnaround Time = %.2f\n", (float)total_tat / n);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os1a',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-1B Non-Preemptive SJF -->
+  <div class="program-card" id="os1b-np">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-1B</span>
+        <span class="prog-name">Non-Preemptive SJF Scheduling</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">sjf_nonpreemptive.c</div>
+      <pre><code id="code-os1b-np">#include &lt;stdio.h&gt;
+
+int main() {
+    int n, i, j;
+    int burst[20], p[20], wait[20], turnaround[20];
+    int total_wait = 0, total_turnaround = 0;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &amp;n);
+
+    for (i = 0; i &lt; n; i++) {
+        printf("Enter burst time for process %d: ", i + 1);
+        scanf("%d", &amp;burst[i]);
+        p[i] = i + 1;
+    }
+
+    // Bubble sort by burst time
+    for (i = 0; i &lt; n - 1; i++) {
+        for (j = 0; j &lt; n - i - 1; j++) {
+            if (burst[j] &gt; burst[j + 1]) {
+                int temp = burst[j]; burst[j] = burst[j+1]; burst[j+1] = temp;
+                    temp = p[j];     p[j]     = p[j+1];     p[j+1]     = temp;
+            }
+        }
+    }
+
+    wait[0] = 0;
+    for (i = 1; i &lt; n; i++) {
+        wait[i] = 0;
+        for (j = 0; j &lt; i; j++) wait[i] += burst[j];
+        total_wait += wait[i];
+    }
+
+    printf("\nProcess\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (i = 0; i &lt; n; i++) {
+        turnaround[i] = burst[i] + wait[i];
+        total_turnaround += turnaround[i];
+        printf("P%d\t%d\t\t%d\t\t%d\n", p[i], burst[i], wait[i], turnaround[i]);
+    }
+
+    printf("\nAverage Waiting Time    = %.2f", (float)total_wait / n);
+    printf("\nAverage Turnaround Time = %.2f\n", (float)total_turnaround / n);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os1b-np',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-1B Preemptive SJF SRTF -->
+  <div class="program-card" id="os1b-p">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-1B</span>
+        <span class="prog-name">Preemptive SJF — SRTF Scheduling</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">srtf.c</div>
+      <pre><code id="code-os1b-p">#include &lt;stdio.h&gt;
+
+int main() {
+    int n, remaining = 0, time = 0, smallest;
+    int bt[20], at[20], rt[20];
+    int i, end, wait[20], turnaround[20], total_wait = 0, total_turnaround = 0;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &amp;n);
+
+    for (i = 0; i &lt; n; i++) {
+        printf("Enter arrival time and burst time for process %d: ", i + 1);
+        scanf("%d%d", &amp;at[i], &amp;bt[i]);
+        rt[i] = bt[i];
+    }
+
+    remaining = n;
+    printf("\nProcess Execution Order:\n");
+
+    while (remaining != 0) {
+        smallest = -1;
+        for (i = 0; i &lt; n; i++) {
+            if (at[i] &lt;= time &amp;&amp; rt[i] &gt; 0) {
+                if (smallest == -1 || rt[i] &lt; rt[smallest]) smallest = i;
+            }
+        }
+        if (smallest == -1) { time++; continue; }
+        rt[smallest]--;
+        time++;
+        if (rt[smallest] == 0) {
+            remaining--;
+            end = time;
+            wait[smallest]       = end - at[smallest] - bt[smallest];
+            turnaround[smallest] = end - at[smallest];
+            total_wait       += wait[smallest];
+            total_turnaround += turnaround[smallest];
+            printf("P%d ", smallest + 1);
+        }
+    }
+
+    printf("\n\nProcess\tArrival\tBurst\tWaiting\tTurnaround\n");
+    for (i = 0; i &lt; n; i++)
+        printf("P%d\t%d\t%d\t%d\t%d\n", i+1, at[i], bt[i], wait[i], turnaround[i]);
+
+    printf("\nAverage Waiting Time    = %.2f", (float)total_wait / n);
+    printf("\nAverage Turnaround Time = %.2f\n", (float)total_turnaround / n);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os1b-p',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-1C Non-Preemptive Priority -->
+  <div class="program-card" id="os1c-np">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-1C</span>
+        <span class="prog-name">Non-Preemptive Priority Scheduling</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">priority_nonpreemptive.c</div>
+      <pre><code id="code-os1c-np">#include &lt;stdio.h&gt;
+
+int main() {
+    int n, i, j;
+    int bt[20], p[20], priority[20];
+    int wt[20], tat[20], total_wt = 0, total_tat = 0;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &amp;n);
+
+    for (i = 0; i &lt; n; i++) {
+        printf("Enter burst time and priority for process %d: ", i + 1);
+        scanf("%d %d", &amp;bt[i], &amp;priority[i]);
+        p[i] = i + 1;
+    }
+
+    // Sort by priority (lower number = higher priority)
+    for (i = 0; i &lt; n - 1; i++) {
+        for (j = i + 1; j &lt; n; j++) {
+            if (priority[i] &gt; priority[j]) {
+                int temp;
+                temp = priority[i]; priority[i] = priority[j]; priority[j] = temp;
+                temp = bt[i];       bt[i]       = bt[j];       bt[j]       = temp;
+                temp = p[i];        p[i]         = p[j];        p[j]        = temp;
+            }
+        }
+    }
+
+    wt[0] = 0;
+    for (i = 1; i &lt; n; i++) {
+        wt[i] = wt[i-1] + bt[i-1];
+        total_wt += wt[i];
+    }
+    for (i = 0; i &lt; n; i++) {
+        tat[i] = bt[i] + wt[i];
+        total_tat += tat[i];
+    }
+
+    printf("\nProcess\tBurst Time\tPriority\tWaiting Time\tTurnaround Time\n");
+    for (i = 0; i &lt; n; i++)
+        printf("P%d\t%d\t\t%d\t\t%d\t\t%d\n", p[i], bt[i], priority[i], wt[i], tat[i]);
+
+    printf("\nAverage Waiting Time    = %.2f", (float)total_wt / n);
+    printf("\nAverage Turnaround Time = %.2f\n", (float)total_tat / n);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os1c-np',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-1C Preemptive Priority -->
+  <div class="program-card" id="os1c-p">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-1C</span>
+        <span class="prog-name">Preemptive Priority Scheduling</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">priority_preemptive.c</div>
+      <pre><code id="code-os1c-p">#include &lt;stdio.h&gt;
+#define MAX 50
+
+int main() {
+    int n, i, time = 0, smallest;
+    int at[MAX], bt[MAX], pr[MAX], rt[MAX];
+    int completed = 0;
+    int wt[MAX], tat[MAX], total_wt = 0, total_tat = 0;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &amp;n);
+
+    for (i = 0; i &lt; n; i++) {
+        printf("Enter arrival time, burst time, and priority for process %d: ", i + 1);
+        scanf("%d%d%d", &amp;at[i], &amp;bt[i], &amp;pr[i]);
+        rt[i] = bt[i];
+    }
+
+    printf("\nExecution Order:\n");
+    while (completed &lt; n) {
+        smallest = -1;
+        for (i = 0; i &lt; n; i++) {
+            if (at[i] &lt;= time &amp;&amp; rt[i] &gt; 0) {
+                if (smallest == -1 || pr[i] &lt; pr[smallest] ||
+                   (pr[i] == pr[smallest] &amp;&amp; at[i] &lt; at[smallest]))
+                    smallest = i;
+            }
+        }
+        if (smallest == -1) { time++; continue; }
+        printf("P%d ", smallest + 1);
+        rt[smallest]--;
+        time++;
+        if (rt[smallest] == 0) {
+            completed++;
+            tat[smallest] = time - at[smallest];
+            wt[smallest]  = tat[smallest] - bt[smallest];
+            total_wt  += wt[smallest];
+            total_tat += tat[smallest];
+        }
+    }
+
+    printf("\n\nProcess\tArrival\tBurst\tPriority\tWaiting\tTurnaround\n");
+    for (i = 0; i &lt; n; i++)
+        printf("P%d\t%d\t%d\t%d\t\t%d\t%d\n", i+1, at[i], bt[i], pr[i], wt[i], tat[i]);
+
+    printf("\nAverage Waiting Time    = %.2f", (float)total_wt / n);
+    printf("\nAverage Turnaround Time = %.2f\n", (float)total_tat / n);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os1c-p',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-1D Round Robin -->
+  <div class="program-card" id="os1d">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-1D</span>
+        <span class="prog-name">Round Robin Scheduling</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">round_robin.c</div>
+      <pre><code id="code-os1d">#include &lt;stdio.h&gt;
+
+int main() {
+    int n, i, time = 0, tq, remain;
+    int at[10], bt[10], rt[10], wt[10], tat[10];
+    int flag = 0;
+    float total_wt = 0, total_tat = 0;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &amp;n);
+    remain = n;
+
+    for (i = 0; i &lt; n; i++) {
+        printf("Enter arrival time and burst time for process P%d: ", i + 1);
+        scanf("%d%d", &amp;at[i], &amp;bt[i]);
+        rt[i] = bt[i];
+    }
+    printf("Enter time quantum: ");
+    scanf("%d", &amp;tq);
+
+    printf("\nExecution Order:\n");
+    while (remain != 0) {
+        flag = 0;
+        for (i = 0; i &lt; n; i++) {
+            if (at[i] &lt;= time &amp;&amp; rt[i] &gt; 0) {
+                flag = 1;
+                if (rt[i] &gt; tq) {
+                    printf("P%d ", i + 1);
+                    time += tq;
+                    rt[i] -= tq;
+                } else {
+                    printf("P%d ", i + 1);
+                    time += rt[i];
+                    wt[i]  = time - at[i] - bt[i];
+                    tat[i] = time - at[i];
+                    rt[i]  = 0;
+                    remain--;
+                    total_wt  += wt[i];
+                    total_tat += tat[i];
+                }
+            }
+        }
+        if (flag == 0) time++;
+    }
+
+    printf("\n\nProcess\tArrival\tBurst\tWaiting\tTurnaround\n");
+    for (i = 0; i &lt; n; i++)
+        printf("P%d\t%d\t%d\t%d\t%d\n", i+1, at[i], bt[i], wt[i], tat[i]);
+
+    printf("\nAverage Waiting Time    = %.2f", total_wt / n);
+    printf("\nAverage Turnaround Time = %.2f\n", total_tat / n);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os1d',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-2 Banker's Algorithm -->
+  <div class="program-card" id="os2">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-2</span>
+        <span class="prog-name">Banker's Algorithm — Deadlock Avoidance</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">bankers.c</div>
+      <pre><code id="code-os2">#include &lt;stdio.h&gt;
+
+int main() {
+    int p, r, count = 0, i, j;
+    int alloc[10][10], max[10][10], need[10][10], safeSeq[10];
+    int available[10], finish[10] = {0}, flag;
+
+    printf("Enter the number of processes and resources: ");
+    scanf("%d %d", &amp;p, &amp;r);
+
+    printf("Enter allocation matrix (%dx%d):\n", p, r);
+    for (i = 0; i &lt; p; i++)
+        for (j = 0; j &lt; r; j++) scanf("%d", &amp;alloc[i][j]);
+
+    printf("Enter max matrix (%dx%d):\n", p, r);
+    for (i = 0; i &lt; p; i++)
+        for (j = 0; j &lt; r; j++) scanf("%d", &amp;max[i][j]);
+
+    printf("Enter available resources (%d):\n", r);
+    for (i = 0; i &lt; r; i++) scanf("%d", &amp;available[i]);
+
+    printf("\nNeed Matrix:\n");
+    for (i = 0; i &lt; p; i++) {
+        for (j = 0; j &lt; r; j++) {
+            need[i][j] = max[i][j] - alloc[i][j];
+            printf("%d\t", need[i][j]);
+        }
+        printf("\n");
+    }
+
+    while (count &lt; p) {
+        flag = 0;
+        for (i = 0; i &lt; p; i++) {
+            if (!finish[i]) {
+                int canExecute = 1;
+                for (j = 0; j &lt; r; j++)
+                    if (need[i][j] &gt; available[j]) { canExecute = 0; break; }
+                if (canExecute) {
+                    for (j = 0; j &lt; r; j++) available[j] += alloc[i][j];
+                    safeSeq[count++] = i;
+                    finish[i] = 1;
+                    flag = 1;
+                }
+            }
+        }
+        if (!flag) { printf("\nSystem is NOT in a safe state.\n"); return 0; }
+    }
+
+    printf("\nSystem is in a safe state.\nSafe sequence: ");
+    for (i = 0; i &lt; p; i++) printf("P%d ", safeSeq[i]);
+    printf("\nAvailable Resources After Execution:\n");
+    for (i = 0; i &lt; r; i++) printf("%d ", available[i]);
+    printf("\n");
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os2',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-3 Paging -->
+  <div class="program-card" id="os3">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-3</span>
+        <span class="prog-name">Paging — Memory Management</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">paging.c</div>
+      <pre><code id="code-os3">#include &lt;stdio.h&gt;
+#include &lt;conio.h&gt;
+
+void main() {
+    int ms, ps, nop, np, rempages, i, j, x, y, pa, offset;
+    int s[10], fno[10][20];
+    clrscr();
+
+    printf("\nEnter the memory size -- ");
+    scanf("%d", &amp;ms);
+    printf("\nEnter the page size -- ");
+    scanf("%d", &amp;ps);
+
+    nop = ms / ps;
+    printf("\nThe no. of pages available in memory are -- %d", nop);
+
+    printf("\nEnter number of processes -- ");
+    scanf("%d", &amp;np);
+    rempages = nop;
+
+    for (i = 1; i &lt;= np; i++) {
+        printf("\nEnter no. of pages required for p[%d]-- ", i);
+        scanf("%d", &amp;s[i]);
+        if (s[i] &gt; rempages) { printf("\nMemory is Full"); break; }
+        rempages = rempages - s[i];
+        printf("\nEnter page table for p[%d] --- ", i);
+        for (j = 0; j &lt; s[i]; j++) scanf("%d", &amp;fno[i][j]);
+    }
+
+    printf("\nEnter Logical Address to find Physical Address");
+    printf("\nEnter process no., page number, and offset -- ");
+    scanf("%d %d %d", &amp;x, &amp;y, &amp;offset);
+
+    if (x &gt; np || y &gt;= s[x] || offset &gt;= ps)
+        printf("\nInvalid Process or Page Number or Offset");
+    else {
+        pa = fno[x][y] * ps + offset;
+        printf("\nThe Physical Address is -- %d", pa);
+    }
+    getch();
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os3',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-4A FIFO -->
+  <div class="program-card" id="os4a">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-4A</span>
+        <span class="prog-name">FIFO Page Replacement</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">fifo_page.c</div>
+      <pre><code id="code-os4a">#include &lt;stdio.h&gt;
+#include &lt;conio.h&gt;
+
+int main() {
+    int n, rss, fa[20], rsa[50];
+    int i, j, cp = 0, pfc = 0, npf;
+
+    printf("Enter number of frames: ");
+    scanf("%d", &amp;n);
+    printf("Enter number of pages in reference string: ");
+    scanf("%d", &amp;rss);
+    printf("Enter Reference String:\n");
+    for (i = 0; i &lt; rss; i++) scanf("%d", &amp;rsa[i]);
+
+    for (i = 0; i &lt; n; i++) fa[i] = -1;
+
+    printf("\nCURRENT_PAGE\tPAGES_IN_FRAME\t\tPAGE_FAULT_OCCURED?\n");
+
+    for (i = 0; i &lt; rss; i++) {
+        printf("\n\t%d\t\t", rsa[i]);
+        npf = 0;
+        for (j = 0; j &lt; n; j++) {
+            if (fa[j] == rsa[i]) { npf = 1; printf("\t\t\tNO"); break; }
+        }
+        if (npf == 0) {
+            pfc++;
+            fa[cp] = rsa[i];
+            cp = (cp + 1) % n;
+            for (j = 0; j &lt; n; j++)
+                printf("%d\t", fa[j] != -1 ? fa[j] : 0);
+            printf("\tYES");
+        }
+    }
+    printf("\n\nTotal number of page faults: %d\n", pfc);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os4a',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-4B LRU -->
+  <div class="program-card" id="os4b">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-4B</span>
+        <span class="prog-name">LRU Page Replacement</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">lru_page.c</div>
+      <pre><code id="code-os4b">#include &lt;stdio.h&gt;
+#include &lt;conio.h&gt;
+
+int main() {
+    int n, rss, fa[20], rsa[50], ta[20];
+    int i, j, k, cp, pfc = 0, npf;
+
+    printf("Enter number of frames: ");
+    scanf("%d", &amp;n);
+    printf("Enter number of pages in reference string: ");
+    scanf("%d", &amp;rss);
+    printf("Enter Reference string:\n");
+    for (i = 0; i &lt; rss; i++) scanf("%d", &amp;rsa[i]);
+
+    for (i = 0; i &lt; n; i++) { fa[i] = -1; ta[i] = n - (i + 1); }
+
+    printf("\nCURRENT_PAGE\tPAGES_IN_FRAME\t\tPAGE_FAULT_OCCURED?\n");
+
+    for (i = 0; i &lt; rss; i++) {
+        printf("\n\t%d\t\t", rsa[i]);
+        npf = 0;
+        for (j = 0; j &lt; n; j++) {
+            if (fa[j] == rsa[i]) {
+                npf = 1;
+                for (k = 0; k &lt; n; k++) ta[k]++;
+                ta[j] = 0;
+                printf("\t\t\tNO");
+                break;
+            }
+        }
+        if (npf == 0) {
+            pfc++;
+            cp = 0;
+            for (j = 1; j &lt; n; j++) if (ta[cp] &lt; ta[j]) cp = j;
+            fa[cp] = rsa[i];
+            for (k = 0; k &lt; n; k++) ta[k]++;
+            ta[cp] = 0;
+            for (j = 0; j &lt; n; j++)
+                fa[j] != -1 ? printf("%d\t", fa[j]) : printf("-\t");
+            printf("\tYES");
+        }
+    }
+    printf("\n\nTotal no of page faults: %d\n", pfc);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os4b',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-4C Optimal -->
+  <div class="program-card" id="os4c">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-4C</span>
+        <span class="prog-name">Optimal Page Replacement</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">optimal_page.c</div>
+      <pre><code id="code-os4c">#include &lt;stdio.h&gt;
+#include &lt;conio.h&gt;
+
+int main() {
+    int n, rss, fa[20], rsa[50], ta[20];
+    int i, j, k, d, cp, ff = 0, pfc = 0, npf;
+
+    printf("Enter number of frames: ");
+    scanf("%d", &amp;n);
+    printf("Enter number of pages in reference string: ");
+    scanf("%d", &amp;rss);
+    printf("Enter Reference string:\n");
+    for (i = 0; i &lt; rss; i++) scanf("%d", &amp;rsa[i]);
+
+    for (i = 0; i &lt; n; i++) { fa[i] = -1; ta[i] = 999; }
+
+    printf("\nCURRENT_PAGE\tPAGES_IN_FRAME\t\tPAGE_FAULT_OCCURED?\n");
+
+    for (i = 0; i &lt; rss; i++) {
+        printf("\n\t%d\t\t", rsa[i]);
+        npf = 0;
+        for (j = 0; j &lt; n; j++) {
+            if (fa[j] == rsa[i]) { npf = 1; printf("\t\t\tNO"); break; }
+        }
+        if (npf == 0) {
+            pfc++;
+            if (ff &lt; n) {
+                fa[ff++] = rsa[i];
+            } else {
+                for (k = 0; k &lt; n; k++) ta[k] = 999;
+                for (k = 0; k &lt; n; k++) {
+                    d = 0;
+                    for (j = i + 1; j &lt; rss; j++) {
+                        if (fa[k] == rsa[j]) { ta[k] = d; break; }
+                        d++;
+                    }
+                }
+                cp = 0;
+                for (j = 1; j &lt; n; j++) if (ta[cp] &lt; ta[j]) cp = j;
+                fa[cp] = rsa[i];
+            }
+            for (j = 0; j &lt; n; j++)
+                fa[j] != -1 ? printf("%d\t", fa[j]) : printf("-\t");
+            printf("\tYES");
+        }
+    }
+    printf("\n\nTotal no of page faults: %d\n", pfc);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os4c',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-5A SCAN -->
+  <div class="program-card" id="os5a">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-5A</span>
+        <span class="prog-name">SCAN Disk Scheduling</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">scan_disk.c</div>
+      <pre><code id="code-os5a">#include &lt;stdio.h&gt;
+#include &lt;conio.h&gt;
+
+int main() {
+    int t[20], d[20], h, i, j, n, temp, k = 0, atr[20], pos, sum = 0;
+    clrscr();
+
+    printf("Enter the number of tracks to be traversed: ");
+    scanf("%d", &amp;n);
+    printf("Enter the position of head: ");
+    scanf("%d", &amp;h);
+    printf("Enter the track numbers:\n");
+    for (i = 0; i &lt; n; i++) scanf("%d", &amp;t[i]);
+
+    t[n] = h;
+    n++;
+
+    // Bubble sort
+    for (i = 0; i &lt; n - 1; i++)
+        for (j = 0; j &lt; n - i - 1; j++)
+            if (t[j] &gt; t[j+1]) { temp = t[j]; t[j] = t[j+1]; t[j+1] = temp; }
+
+    for (i = 0; i &lt; n; i++) if (t[i] == h) { pos = i; break; }
+
+    k = 0;
+    for (i = pos; i &gt;= 0;   i--) atr[k++] = t[i];
+    for (i = pos+1; i &lt; n;  i++) atr[k++] = t[i];
+
+    for (i = 0; i &lt; k - 1; i++) {
+        d[i] = atr[i] &gt; atr[i+1] ? atr[i]-atr[i+1] : atr[i+1]-atr[i];
+        sum += d[i];
+    }
+
+    printf("\nOrder of head movement:\n");
+    for (i = 0; i &lt; k; i++) printf("%d ", atr[i]);
+    printf("\n\nTotal head movement: %d", sum);
+    printf("\nAverage head movement: %.2f\n", (float)sum / (k - 1));
+    getch();
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os5a',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-5B C-SCAN -->
+  <div class="program-card" id="os5b">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-5B</span>
+        <span class="prog-name">C-SCAN Disk Scheduling</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">cscan_disk.c</div>
+      <pre><code id="code-os5b">#include &lt;stdio.h&gt;
+#include &lt;conio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main() {
+    int t[20], h, i, j, n, temp, total_tracks, k = 0, pos, sum = 0, atr[20];
+    clrscr();
+
+    printf("Enter the number of tracks to be traversed: ");
+    scanf("%d", &amp;n);
+    printf("Enter the current position of head: ");
+    scanf("%d", &amp;h);
+    printf("Enter the total number of tracks (disk size): ");
+    scanf("%d", &amp;total_tracks);
+    printf("Enter the track numbers:\n");
+    for (i = 0; i &lt; n; i++) scanf("%d", &amp;t[i]);
+
+    t[n++] = h;
+    t[n++] = 0;
+    t[n++] = total_tracks - 1;
+
+    for (i = 0; i &lt; n - 1; i++)
+        for (j = 0; j &lt; n - i - 1; j++)
+            if (t[j] &gt; t[j+1]) { temp = t[j]; t[j] = t[j+1]; t[j+1] = temp; }
+
+    for (i = 0; i &lt; n; i++) if (t[i] == h) { pos = i; break; }
+
+    k = 0;
+    for (i = pos; i &lt; n;   i++) atr[k++] = t[i];
+    for (i = 0;   i &lt; pos; i++) atr[k++] = t[i];
+
+    for (i = 0; i &lt; k - 1; i++) sum += abs(atr[i+1] - atr[i]);
+
+    printf("\nOrder of head movement:\n");
+    for (i = 0; i &lt; k; i++) printf("%d ", atr[i]);
+    printf("\n\nTotal head movement: %d", sum);
+    printf("\nAverage head movement: %.2f\n", (float)sum / (k - 1));
+    getch();
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os5b',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-5C SSTF -->
+  <div class="program-card" id="os5c">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-5C</span>
+        <span class="prog-name">SSTF Disk Scheduling</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">sstf_disk.c</div>
+      <pre><code id="code-os5c">#include &lt;stdio.h&gt;
+#include &lt;conio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main() {
+    int queue[100], visited[100], n, i, j, head, pos, min, diff, seek = 0;
+    float avg;
+    clrscr();
+
+    printf("*** SSTF Disk Scheduling Algorithm ***\n");
+    printf("Enter the size of the queue: ");
+    scanf("%d", &amp;n);
+    printf("Enter the queue (track numbers):\n");
+    for (i = 0; i &lt; n; i++) { scanf("%d", &amp;queue[i]); visited[i] = 0; }
+    printf("Enter the initial head position: ");
+    scanf("%d", &amp;head);
+
+    printf("\nOrder of head movement:\n");
+    for (i = 0; i &lt; n; i++) {
+        min = 100000; pos = -1;
+        for (j = 0; j &lt; n; j++) {
+            if (!visited[j]) {
+                diff = abs(queue[j] - head);
+                if (diff &lt; min) { min = diff; pos = j; }
+            }
+        }
+        visited[pos] = 1;
+        seek += abs(queue[pos] - head);
+        head = queue[pos];
+        printf("%d ", head);
+    }
+
+    avg = (float)seek / n;
+    printf("\n\nTotal Seek Time    = %d", seek);
+    printf("\nAverage Seek Time  = %.2f\n", avg);
+    getch();
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os5c',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-6A Booth's -->
+  <div class="program-card" id="os6a">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-6A</span>
+        <span class="prog-name">Booth's Multiplication Algorithm</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">booths.c</div>
+      <pre><code id="code-os6a">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int A = 0, Q = 0, M = 0, Q_1 = 0, count;
+
+void display(int step) {
+    printf("Step %d =&gt; A: %4d, Q: %4d, Q-1: %d\n", step, A, Q, Q_1);
+}
+
+int arithmetic_right_shift() {
+    int sign = (A &lt; 0) ? 1 : 0;
+    Q_1 = Q &amp; 1;
+    Q = Q &gt;&gt; 1;
+    if (A &amp; 1) Q |= (1 &lt;&lt; (sizeof(int)*8 - 1));
+    A = A &gt;&gt; 1;
+    if (sign) A |= (~((1 &lt;&lt; (sizeof(int)*8 - 1)) - 1));
+    return 0;
+}
+
+void booth(int multiplicand, int multiplier, int n) {
+    A = 0; M = multiplicand; Q = multiplier; Q_1 = 0; count = n;
+    printf("\nInitial Values =&gt; A: %4d, Q: %4d, M: %4d, Q-1: %d\n", A, Q, M, Q_1);
+    display(0);
+    for (int step = 1; count &gt; 0; step++) {
+        int Q0 = Q &amp; 1;
+        if      (Q0 == 1 &amp;&amp; Q_1 == 0) { A = A - M; printf("A = A - M =&gt; A = %d\n", A); }
+        else if (Q0 == 0 &amp;&amp; Q_1 == 1) { A = A + M; printf("A = A + M =&gt; A = %d\n", A); }
+        arithmetic_right_shift();
+        count--;
+        display(step);
+    }
+    printf("\nFinal Product (A:Q): %d\n", (A &lt;&lt; n) | (Q &amp; ((1 &lt;&lt; n) - 1)));
+}
+
+int main() {
+    int multiplicand, multiplier, n;
+    printf("Enter multiplicand: "); scanf("%d", &amp;multiplicand);
+    printf("Enter multiplier: ");   scanf("%d", &amp;multiplier);
+    printf("Enter number of bits: "); scanf("%d", &amp;n);
+    booth(multiplicand, multiplier, n);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os6a',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-6B Restoring Division -->
+  <div class="program-card" id="os6b">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-6B</span>
+        <span class="prog-name">Restoring Division Algorithm</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">restoring_division.c</div>
+      <pre><code id="code-os6b">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;math.h&gt;
+
+void leftShift(int *A, int *Q, int n) {
+    *A = ((*A &lt;&lt; 1) | ((*Q &gt;&gt; (n - 1)) &amp; 1)) &amp; ((1 &lt;&lt; n) - 1);
+    *Q = (*Q &lt;&lt; 1) &amp; ((1 &lt;&lt; n) - 1);
+}
+
+void restoringDivision(int dividend, int divisor, int n) {
+    int A = 0, Q = dividend, M = divisor;
+    printf("Initial Values:\nA = %d, Q = %d, M = %d\n", A, Q, M);
+
+    for (int i = 0; i &lt; n; i++) {
+        leftShift(&amp;A, &amp;Q, n);
+        printf("\nStep %d:\nAfter Left Shift =&gt; A = %d, Q = %d\n", i+1, A, Q);
+        A = A - M;
+        printf("After A - M =&gt; A = %d\n", A);
+        if (A &lt; 0) {
+            Q = Q &amp; (~1);
+            A = A + M;
+            printf("A is negative, restoring A =&gt; A = %d, Q = %d\n", A, Q);
+        } else {
+            Q = Q | 1;
+            printf("A is positive, Q updated =&gt; Q = %d\n", Q);
+        }
+    }
+    printf("\nFinal Quotient (Q): %d\n", Q);
+    printf("Final Remainder (A): %d\n", A);
+}
+
+int main() {
+    int dividend, divisor, bits;
+    printf("Enter Dividend: ");  scanf("%d", &amp;dividend);
+    printf("Enter Divisor: ");   scanf("%d", &amp;divisor);
+    printf("Enter number of bits to simulate: "); scanf("%d", &amp;bits);
+    if (divisor == 0) { printf("Error: Division by zero.\n"); return 1; }
+    restoringDivision(dividend, divisor, bits);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os6b',this)">Copy</button></div>
+    </div>
+  </div>
+
+  <!-- OS-6C Non-Restoring Division -->
+  <div class="program-card" id="os6c">
+    <div class="program-card-header" onclick="toggle(this)">
+      <div class="program-card-title">
+        <span class="prog-id os">OS-6C</span>
+        <span class="prog-name">Non-Restoring Division Algorithm</span>
+      </div>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="code-container">
+      <div class="code-label">non_restoring_division.c</div>
+      <pre><code id="code-os6c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+void leftShift(int *A, int *Q, int n) {
+    *A = ((*A &lt;&lt; 1) | ((*Q &gt;&gt; (n - 1)) &amp; 1)) &amp; ((1 &lt;&lt; n) - 1);
+    *Q = (*Q &lt;&lt; 1) &amp; ((1 &lt;&lt; n) - 1);
+}
+
+void nonRestoringDivision(int dividend, int divisor, int n) {
+    int A = 0, Q = dividend, M = divisor;
+    printf("Initial Values:\nA = %d, Q = %d, M = %d\n", A, Q, M);
+
+    for (int i = 0; i &lt; n; i++) {
+        printf("\nStep %d:\n", i + 1);
+        leftShift(&amp;A, &amp;Q, n);
+        printf("After Left Shift =&gt; A = %d, Q = %d\n", A, Q);
+        if ((A &gt;&gt; (n - 1)) == 0) { A = A - M; printf("A was positive, A = A - M =&gt; A = %d\n", A); }
+        else                       { A = A + M; printf("A was negative, A = A + M =&gt; A = %d\n", A); }
+        if ((A &gt;&gt; (n - 1)) == 0)  Q = Q | 1;
+        else                       Q = Q &amp; (~1);
+        printf("Updated Q = %d\n", Q);
+    }
+
+    if ((A &gt;&gt; (n - 1)) == 1) { A = A + M; printf("\nFinal correction =&gt; A = %d\n", A); }
+
+    printf("\nFinal Quotient (Q): %d\n", Q);
+    printf("Final Remainder (A): %d\n", A);
+}
+
+int main() {
+    int dividend, divisor, bits;
+    printf("Enter Dividend: ");  scanf("%d", &amp;dividend);
+    printf("Enter Divisor: ");   scanf("%d", &amp;divisor);
+    printf("Enter number of bits to simulate: "); scanf("%d", &amp;bits);
+    if (divisor == 0) { printf("Error: Division by zero is not allowed.\n"); return 1; }
+    nonRestoringDivision(dividend, divisor, bits);
+    return 0;
+}</code></pre>
+      <div class="copy-bar"><button class="copy-btn" onclick="copyCode('code-os6c',this)">Copy</button></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══════════════ SCRIPTS ══════════════ -->
+<script>
+  // Toggle card open/close
+  function toggle(header) {
+    const card = header.parentElement;
+    card.classList.toggle('open');
+  }
+
+  // Copy code to clipboard
+  function copyCode(id, btn) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  // Sidebar active link highlight on scroll
+  const sections = document.querySelectorAll('[id]');
+  const links    = document.querySelectorAll('#sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`#sidebar a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
